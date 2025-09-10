@@ -1,0 +1,11 @@
+{
+    "java.project.sourcePaths": [
+        "src/br/edu/iff/dominio",
+        "src/br/edu/iff/bancodepalavras/dominio/tema",
+        "src/br/edu/iff/bancodepalavras/dominio/letra/texto",
+        "src/br/edu/iff/bancodepalavras/dominio/letra/imagem",
+        "src/br/edu/iff/bancodepalavras/dominio/letra",
+        "src/br/edu/iff/banco",
+        "src"
+    ]
+}
