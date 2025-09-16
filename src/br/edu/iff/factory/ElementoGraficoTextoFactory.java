@@ -1,3 +1,3 @@
-public class ElementoGraficoTextoFactory {
+public class ElementoGraficoTextoFactory implements ElementoGraficoFactory{
 
 }

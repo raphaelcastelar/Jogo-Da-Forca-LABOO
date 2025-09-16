@@ -1,3 +1,3 @@
-public class LetraTexto {
+public class LetraTexto implements Letra{
 
 }

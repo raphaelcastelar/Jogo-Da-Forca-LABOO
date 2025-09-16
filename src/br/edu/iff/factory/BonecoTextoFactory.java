@@ -1,3 +1,3 @@
-public class BonecoTextoFactory {
+public class BonecoTextoFactory implements BonecoFactory {
 
 }

@@ -1,3 +1,3 @@
-public class LetraImagem {
+public class LetraImagem implements Letra {
 
 }

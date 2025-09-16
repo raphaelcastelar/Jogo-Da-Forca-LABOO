@@ -1,3 +1,3 @@
-public abstract class ObjetoDominioImpl {
+public abstract class ObjetoDominioImpl implements ObjetoDominio{
 
 }

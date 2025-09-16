@@ -1,3 +1,3 @@
-public class MemoriaJogadorRepository {
+public class MemoriaJogadorRepository implements RepositoryFactory{
 
 }

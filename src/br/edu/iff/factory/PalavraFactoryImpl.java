@@ -1,3 +1,3 @@
-public class PalavraFactoryImpl {
+public class PalavraFactoryImpl implements PalavraFactory {
 
 }

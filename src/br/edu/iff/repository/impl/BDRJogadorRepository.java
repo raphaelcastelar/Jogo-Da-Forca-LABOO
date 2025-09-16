@@ -1,3 +1,3 @@
-public class BDRJogadorRepository {
+public class BDRJogadorRepository implements RepositoryFactory{
 
 }

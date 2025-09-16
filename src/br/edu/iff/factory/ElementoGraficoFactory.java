@@ -1,3 +1,3 @@
-public class ElementoGraficoFactory {
+public interface ElementoGraficoFactory {
 
 }
