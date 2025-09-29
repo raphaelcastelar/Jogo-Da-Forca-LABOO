@@ -11,4 +11,5 @@ public interface JogadorRepository extends Repository {
 
     Jogador getPorId(long id);
     Jogador getPorNome(String nome);
+    Jogador[] getTodos();
 }
