@@ -21,14 +21,17 @@ public class MemoriaPalavraRepository implements PalavraRepository {
     private final Map<Long, Set<Long>> porTemaId = new ConcurrentHashMap<>();
     private final AtomicLong seq = new AtomicLong(1);
 
-    /* Construtor da instância única */
+    /** Construtor da instância única 
+    */
     private MemoriaPalavraRepository() {}
     public static MemoriaPalavraRepository getSoleInstance() { 
         if (soleInstance == null) soleInstance = new MemoriaPalavraRepository();
         return soleInstance;
     }
 
-    /*Retorna o próximo ID sequencial seguro para ser atribuído a uma nova Palavra */
+    /**
+     * Retorna o próximo ID sequencial seguro para ser atribuído a uma nova Palavra 
+     **/
     public long getProximoId() { return seq.getAndIncrement(); } 
 
     /*Insere uma nova palavra no repositório*/
@@ -41,9 +44,10 @@ public class MemoriaPalavraRepository implements PalavraRepository {
         porTemaId.computeIfAbsent(p.getTema().getId(), k -> new HashSet<>()).add(p.getId());
     }
 
-    /*Atualiza uma palavra existente no repositório 
+    /**
+     * Atualiza uma palavra existente no repositório 
      *@param p é é o objeto Palavra a ser atualizado
-     @throws RepositoryException se a palavra com o ID não existe
+     *@throws RepositoryException se a palavra com o ID não existe
     */
     public void atualizar(Palavra p) throws RepositoryException {
         if (!porId.containsKey(p.getId())) throw new RepositoryException("Palavra inexistente");
@@ -54,7 +58,8 @@ public class MemoriaPalavraRepository implements PalavraRepository {
         porTemaId.computeIfAbsent(p.getTema().getId(), k -> new HashSet<>()).add(p.getId());
     }
 
-    /*Remove uma palavra existente no repositório
+    /**
+     * Remove uma palavra existente no repositório
      * @param p é é o objeto Palavra a ser removido
      * @throws RepositoryException se a palavra com o ID não existe
      */
@@ -65,14 +70,16 @@ public class MemoriaPalavraRepository implements PalavraRepository {
         porTemaId.values().forEach(s -> s.remove(p.getId()));
     }
 
-    /*Busca uma palavra pelo seu ID único
+    /**
+     * Busca uma palavra pelo seu ID único
      * @param id é o ID da palavra a ser buscada
      * @return a palavra com o ID especificado, ou null se não encontrada
      */
     public Palavra getPorId(long id) { return porId.get(id); }
 
 
-    /*Busca uma palavra pelo seu ID único
+    /**
+     * Busca uma palavra pelo seu ID único
      * @param texto é o texto da palavra a ser buscada
      * @return a palavra com o texto especificado, ou null se não encontrada
      */
@@ -81,7 +88,8 @@ public class MemoriaPalavraRepository implements PalavraRepository {
         return id == null ? null : porId.get(id);
     }
 
-    /*Retorna todas as palavras armazenadas no repositório
+    /**
+     * Retorna todas as palavras armazenadas no repositório
      * @return um array com todas as palavras
      */
     public Palavra[] getTodas() { return porId.values().toArray(new Palavra[0]); }
