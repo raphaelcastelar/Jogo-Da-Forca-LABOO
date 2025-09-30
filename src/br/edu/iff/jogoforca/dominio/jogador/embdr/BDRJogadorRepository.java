@@ -4,9 +4,7 @@ import br.edu.iff.jogoforca.dominio.jogador.Jogador;
 import br.edu.iff.jogoforca.dominio.jogador.JogadorRepository;
 import br.edu.iff.repository.RepositoryException;
 
-/**
- * Stub BDR: compila contra a interface; não utilizado durante execução em memória.
- */
+
 public class BDRJogadorRepository implements JogadorRepository {
 
     private static BDRJogadorRepository soleInstance;

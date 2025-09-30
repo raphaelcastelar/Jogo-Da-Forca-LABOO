@@ -8,11 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Repository em memória para Jogador
- * - Thread-safe via ConcurrentHashMap + AtomicLong para sequência de IDs.
- * - Mantém índices por id e por nome (case-insensitive).
- */
+
 public class MemoriaJogadorRepository implements JogadorRepository {
     private static MemoriaJogadorRepository soleInstance;
     private final Map<Long, Jogador> porId = new ConcurrentHashMap<>();
