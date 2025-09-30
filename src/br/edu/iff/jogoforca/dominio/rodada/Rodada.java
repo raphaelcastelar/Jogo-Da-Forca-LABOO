@@ -195,7 +195,7 @@ public class Rodada extends ObjetoDominioImpl {
 
     public void exibirPalavras(Object contexto) {
         for (Item item : itens) {
-            item.getPalavra().exibir(contexto);
+            item.exibir(contexto);
             System.out.println();
         }
     }
