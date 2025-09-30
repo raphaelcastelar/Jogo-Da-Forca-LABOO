@@ -153,7 +153,7 @@ public final class Aplicacao {
 
         System.out.println();
         System.out.println("--- PALAVRA(S) ---");
-        rodada.exibirPalavras(null);
+        rodada.exibirItens(null);
         System.out.println();
     }
 
