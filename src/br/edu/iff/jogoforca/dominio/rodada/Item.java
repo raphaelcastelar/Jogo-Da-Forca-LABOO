@@ -3,6 +3,10 @@ package br.edu.iff.jogoforca.dominio.rodada;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.edu.iff.bancodepalavras.dominio.letra.Letra;
+import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
+import br.edu.iff.dominio.ObjetoDominioImpl;
+
 public class Item {
     private int id;
     private Palavra palavra;
