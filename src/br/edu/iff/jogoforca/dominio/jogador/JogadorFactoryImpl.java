@@ -1,5 +1,9 @@
 package br.edu.iff.jogoforca.dominio.jogador;
 
+/**
+ * Fábrica concreta para Jogador
+ * - Consulta o repositório por nome; se não existir, cria e persiste novo jogador.
+ */
 public class JogadorFactoryImpl implements JogadorFactory {
 
     private static JogadorFactoryImpl soleInstance;

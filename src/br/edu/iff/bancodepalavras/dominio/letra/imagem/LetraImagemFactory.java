@@ -1,8 +1,12 @@
 package br.edu.iff.bancodepalavras.dominio.letra.imagem;
 
-import bancodepalavras.dominio.letra.Letra;
-import bancodepalavras.dominio.letra.LetraFactoryImpl;
+import br.edu.iff.bancodepalavras.dominio.letra.Letra;
+import br.edu.iff.bancodepalavras.dominio.letra.LetraFactoryImpl;
 
+
+/**
+ * Fábrica concreta de letras (imagem) — compartilha instâncias via Flyweight.
+ */
 public class LetraImagemFactory extends LetraFactoryImpl {
     private static LetraImagemFactory soleInstance;
 

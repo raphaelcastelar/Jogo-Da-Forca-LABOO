@@ -8,6 +8,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Repository em memória para Tema
+ * - Índices por id e por nome (suporta múltiplos ids para o mesmo nome).
+ */
 public class MemoriaTemaRepository implements TemaRepository {
     private static MemoriaTemaRepository soleInstance;
     private final Map<Long, Tema> porId = new ConcurrentHashMap<>();

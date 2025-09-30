@@ -2,6 +2,10 @@ package br.edu.iff.bancodepalavras.dominio.tema;
 
 import br.edu.iff.dominio.ObjetoDominio;
 
+/**
+ * Entidade Tema
+ * Padrões: Factory Method (criar/reconstituir) para manter construção controlada.
+ */
 public class Tema implements ObjetoDominio {
     
     private long id;

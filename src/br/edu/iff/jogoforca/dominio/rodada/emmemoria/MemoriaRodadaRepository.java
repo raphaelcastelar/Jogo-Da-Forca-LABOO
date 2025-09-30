@@ -9,6 +9,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Repository em memória para Rodada
+ * - Índice por id e por id de jogador para histórico/consulta rápida.
+ */
 public class MemoriaRodadaRepository implements RodadaRepository {
     private static MemoriaRodadaRepository soleInstance;
     private final Map<Long, Rodada> porId = new ConcurrentHashMap<>();

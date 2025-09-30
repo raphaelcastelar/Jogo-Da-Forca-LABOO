@@ -1,12 +1,13 @@
 package br.edu.iff.bancodepalavras.dominio.letra;
 
-public abstract class Letra {
-
-    import dominio.ObjetoDominioImpl;
-
 import java.util.Objects;
 
-public abstract class Letra{
+/**
+ * Flyweight (intrínseco = código da letra)
+ * - Instâncias de Letra devem ser compartilhadas via LetraFactory para economizar memória.
+ * - equals/hashCode baseados no char permitem comparar corretamente em coleções.
+ */
+public abstract class Letra {
     private char codigo;
 
     protected Letra(char codigo) {
@@ -17,13 +18,15 @@ public abstract class Letra{
         return codigo;
     }
 
-    public void exibir(Object contexto){
+    public void exibir(Object contexto) {
     }
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Letra letra = (Letra) o;
         return codigo == letra.codigo;
     }
@@ -37,6 +40,4 @@ public abstract class Letra{
     public final String toString() {
         return String.valueOf(codigo);
     }
-}
-
 }

@@ -10,6 +10,10 @@ import br.edu.iff.jogoforca.dominio.jogador.emmemoria.MemoriaJogadorRepository;
 import br.edu.iff.jogoforca.dominio.rodada.RodadaRepository;
 import br.edu.iff.jogoforca.dominio.rodada.emmemoria.MemoriaRodadaRepository;
 
+/**
+ * Abstract Factory de Repositórios (implementação em memória)
+ * - Fornece instâncias Singleton de cada repositório de agregado.
+ */
 public class MemoriaRepositoryFactory implements RepositoryFactory {
     private static MemoriaRepositoryFactory soleInstance;
 

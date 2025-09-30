@@ -14,6 +14,17 @@ import br.edu.iff.jogoforca.dominio.boneco.Boneco;
 import br.edu.iff.jogoforca.dominio.boneco.BonecoFactory;
 import br.edu.iff.jogoforca.dominio.jogador.Jogador;
 
+/**
+ * Agregado Raiz: Rodada
+ * Regras principais:
+ * - Quantidade de palavras limitada (maxPalavras), todas do mesmo Tema.
+ * - Tentativas controladas por maxErros; encerra ao descobrir tudo, arriscar ou esgotar erros.
+ * Injeções estáticas:
+ * - BonecoFactory (Null Object por padrão no console): evita dependência de UI real.
+ * Colabora com:
+ * - Item: encapsula progresso de cada palavra (posições descobertas, acertos, arrisco).
+ * - Letra (Flyweight) para exibição/registro de tentativas.
+ */
 public class Rodada extends ObjetoDominioImpl {
     private static int pontosPorLetraEncoberta = 15;
     private static int pontosQuandoDescobreTodasAsPalavras = 100;
@@ -27,6 +38,7 @@ public class Rodada extends ObjetoDominioImpl {
     private Jogador jogador;
     private Boneco boneco;
 
+    // Reconstituição: usada pelo repositório para reerguer estado salvo
     private Rodada(long id, Item[] itens, Letra[] erradas, Jogador jogador) {
         super(id);
         this.itens = itens;
@@ -35,6 +47,7 @@ public class Rodada extends ObjetoDominioImpl {
         this.boneco = getBonecoFactory().getBoneco();
     }
 
+    // Criação: valida tema único, limite de palavras e injeta Boneco
     private Rodada(long id, Palavra[] palavras, Jogador jogador) {
         super(id);
         if (bonecoFactory == null) {
@@ -150,6 +163,7 @@ public class Rodada extends ObjetoDominioImpl {
             for (Item item : itens) {
                 pontos += item.calcularPontosLetrasEncobertas(pontosPorLetraEncoberta);
             }
+            System.out.println("[Rodada] Pontuação calculada (descobriu todas): " + pontos);
             return pontos;
         }
         return 0;
@@ -182,6 +196,7 @@ public class Rodada extends ObjetoDominioImpl {
     public void exibirPalavras(Object contexto) {
         for (Item item : itens) {
             item.exibir(contexto);
+            System.out.println();
         }
     }
 
@@ -206,11 +221,13 @@ public class Rodada extends ObjetoDominioImpl {
         if (palavras.length != itens.length) {
             throw new IllegalArgumentException("Número de palavras arriscadas deve ser igual ao número de itens.");
         }
+        System.out.println("[Rodada] Arriscando: " + java.util.Arrays.toString(palavras));
         for (int i = 0; i < itens.length; i++) {
             itens[i].arriscar(palavras[i]);
         }
         if (encerrou()) {
             jogador.atualizarPontuacao(calcularPontos());
+            System.out.println("[Rodada] Rodada encerrou após arriscar. Pontuação do jogador atualizada.");
         }
     }
 
@@ -218,6 +235,7 @@ public class Rodada extends ObjetoDominioImpl {
         if (encerrou()) {
             throw new IllegalStateException("Rodada já encerrou.");
         }
+        System.out.println("[Rodada] Tentativa de letra: '" + codigo + "'");
         boolean acerto = false;
         for (Item item : itens) {
             if (item.tentar(codigo)) {
@@ -230,9 +248,14 @@ public class Rodada extends ObjetoDominioImpl {
             List<Letra> novasErradas = new ArrayList<>(Arrays.asList(erradas));
             novasErradas.add(letraErrada);
             erradas = novasErradas.toArray(new Letra[0]);
+            System.out.println("[Rodada] Errou a letra: '" + codigo + "'. Total de erros=" + getQtdeErros());
+        }
+        else {
+            System.out.println("[Rodada] Acertou a letra: '" + codigo + "'. Total de acertos=" + getQtdeAcertos());
         }
         if (encerrou()) {
             jogador.atualizarPontuacao(calcularPontos());
+            System.out.println("[Rodada] Rodada encerrou após tentativa. Pontuação do jogador atualizada.");
         }
     }
 

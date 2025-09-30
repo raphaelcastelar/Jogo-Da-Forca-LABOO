@@ -2,6 +2,12 @@ package br.edu.iff.jogoforca.dominio.jogador;
 
 import br.edu.iff.dominio.ObjetoDominioImpl;
 
+/**
+ * Entidade Jogador
+ * - Usa Factory Method (criar/reconstituir) para controlar construção.
+ * - Encapsula a regra de pontuação via atualizarPontuacao().
+ */
+
 public class Jogador extends ObjetoDominioImpl {
 
     private String nome;

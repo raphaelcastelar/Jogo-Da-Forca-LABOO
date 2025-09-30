@@ -1,8 +1,12 @@
 package br.edu.iff.bancodepalavras.dominio.palavra;
 
-import bancodepalavras.dominio.tema.TemaRepository;
-import repository.RepositoryException;
+import br.edu.iff.bancodepalavras.dominio.tema.TemaRepository;
+import br.edu.iff.repository.RepositoryException;
 
+/**
+ * Application Service para o agregado Palavra
+ * - Orquestra validações de Tema, existência prévia e persistência.
+ */
 public class PalavraAppService {
     PalavraRepository palavraRepository;
     TemaRepository temaRepository;

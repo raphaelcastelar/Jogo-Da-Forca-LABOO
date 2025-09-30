@@ -4,6 +4,9 @@ import br.edu.iff.jogoforca.dominio.jogador.Jogador;
 import br.edu.iff.jogoforca.dominio.jogador.JogadorRepository;
 import br.edu.iff.repository.RepositoryException;
 
+/**
+ * Stub BDR: compila contra a interface; não utilizado durante execução em memória.
+ */
 public class BDRJogadorRepository implements JogadorRepository {
 
     private static BDRJogadorRepository soleInstance;
@@ -48,5 +51,11 @@ public class BDRJogadorRepository implements JogadorRepository {
     public long getProximoId() {
         // no banco seria sequência/auto_increment
         return 0;
+    }
+
+    @Override
+    public Jogador[] getTodos() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTodos'");
     }
 }

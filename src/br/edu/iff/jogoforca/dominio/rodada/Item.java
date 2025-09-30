@@ -7,6 +7,13 @@ import br.edu.iff.bancodepalavras.dominio.letra.Letra;
 import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
 import br.edu.iff.dominio.ObjetoDominioImpl;
 
+/**
+ * Entidade de suporte da Rodada: representa uma palavra e seu progresso.
+ * Estado:
+ * - posicoesDescobertas: marca letras encontradas; evita recalcular a cada exibição.
+ * Regras:
+ * - arriscar() só pode ocorrer uma vez; acertou() compara com Palavra via Flyweight.
+ */
 public class Item {
     private int id;
     private Palavra palavra;

@@ -9,6 +9,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Repository em memória para Palavra
+ * - Índices: por id, por texto (case-insensitive) e por id de tema.
+ * - Thread-safe com ConcurrentHashMap; IDs gerados com AtomicLong.
+ */
 public class MemoriaPalavraRepository implements PalavraRepository {
     private static MemoriaPalavraRepository soleInstance;
     private final Map<Long, Palavra> porId = new ConcurrentHashMap<>();

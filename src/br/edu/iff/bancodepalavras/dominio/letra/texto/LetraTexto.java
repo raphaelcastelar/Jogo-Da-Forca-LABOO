@@ -1,7 +1,10 @@
 package br.edu.iff.bancodepalavras.dominio.letra.texto;
 
-import bancodepalavras.dominio.letra.Letra;
+import br.edu.iff.bancodepalavras.dominio.letra.Letra;
 
+/**
+ * Implementação concreta de Letra para saída textual (console).
+ */
 public class LetraTexto extends Letra {
     public LetraTexto(char codigo) {
         super(codigo);

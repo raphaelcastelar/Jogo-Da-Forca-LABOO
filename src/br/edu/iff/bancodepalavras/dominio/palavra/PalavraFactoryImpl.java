@@ -1,9 +1,13 @@
 package br.edu.iff.bancodepalavras.dominio.palavra;
 
-import bancodepalavras.dominio.tema.Tema;
-import factory.EntityFactory;
-import repository.Repository;
+import br.edu.iff.bancodepalavras.dominio.tema.Tema;
+import br.edu.iff.factory.EntityFactory;
+import br.edu.iff.repository.Repository;
 
+/**
+ * Fábrica concreta de Palavra
+ * - Obtém o próximo ID do Repository (via EntityFactory) e delega a construção à entidade (Factory Method).
+ */
 public class PalavraFactoryImpl extends EntityFactory implements PalavraFactory{
     private static PalavraFactoryImpl soleInstance;
 

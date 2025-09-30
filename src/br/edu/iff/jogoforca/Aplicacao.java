@@ -1,203 +1,161 @@
 package br.edu.iff.jogoforca;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Scanner;
 
-import br.edu.iff.bancodepalavras.dominio.palavra.PalavraRepository;
-import br.edu.iff.bancodepalavras.dominio.tema.TemaRepository;
-import br.edu.iff.jogoforca.dominio.jogador.JogadorRepository;
-import br.edu.iff.jogoforca.dominio.rodada.RodadaFactory;
-import br.edu.iff.jogoforca.dominio.rodada.RodadaRepository;
-import br.edu.iff.jogoforca.emmemoria.MemoriaRepositoryFactory;
 import br.edu.iff.bancodepalavras.dominio.letra.Letra;
 import br.edu.iff.bancodepalavras.dominio.letra.texto.LetraTextoFactory;
+import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
+import br.edu.iff.bancodepalavras.dominio.palavra.PalavraRepository;
+import br.edu.iff.bancodepalavras.dominio.tema.Tema;
+import br.edu.iff.bancodepalavras.dominio.tema.TemaRepository;
 import br.edu.iff.jogoforca.dominio.boneco.NoOpBonecoFactory;
+import br.edu.iff.jogoforca.dominio.jogador.Jogador;
+import br.edu.iff.jogoforca.dominio.jogador.JogadorRepository;
 import br.edu.iff.jogoforca.dominio.rodada.Rodada;
 import br.edu.iff.jogoforca.dominio.rodada.RodadaAppService;
+import br.edu.iff.jogoforca.dominio.rodada.RodadaFactory;
+import br.edu.iff.jogoforca.dominio.rodada.RodadaRepository;
 import br.edu.iff.jogoforca.dominio.rodada.sorteio.RodadaSorteioFactory;
+import br.edu.iff.jogoforca.emmemoria.MemoriaRepositoryFactory;
 import br.edu.iff.repository.RepositoryException;
 
 /**
- * Padrões:
- * - Singleton (Initialization-on-demand holder): instância única de Aplicacao sem synchronized.
- * - Service Locator/Composition Root: centraliza as factories/repos usados pela aplicação.
+ * Composition Root / Launcher
+ * - Responsável por montar o grafo de objetos da aplicação (sem framework),
+ *   escolhendo as fábricas e repositórios concretos.
+ * Padrões em uso neste fluxo:
+ * - Repository (MemoriaRepositoryFactory) para isolamento de persistência.
+ * - Factory Method nas entidades (ex.: Palavra.criar, Tema.criar, Jogador.criar).
+ * - Flyweight para letra (LetraFactory + pool interno em LetraFactoryImpl).
+ * - Null Object para boneco (NoOpBonecoFactory) — evita NPE e exibição real.
+ * - Facade/Application Service (RodadaAppService) para orquestrar casos de uso.
  */
 public final class Aplicacao {
 
-    private RepositoryFactory repositoryFactory;
-    private RodadaFactory rodadaFactory;
-    private final AtomicBoolean configurada = new AtomicBoolean(false);
-
-    private Aplicacao() {}
-
-    private static final class Holder {
-        private static final Aplicacao INSTANCE = new Aplicacao();
-    }
-
-    public static Aplicacao getSoleInstance() {
-        return Holder.INSTANCE;
-    }
-
-    /**
-     * Configura para repositórios em memória. Só efetiva a primeira chamada (idempotente).
-     */
-    public Aplicacao configurarParaMemoria() {
-        if (configurada.compareAndSet(false, true)) {
-            System.out.println("[Aplicacao] Configurando para repositórios em memória...");
-            this.repositoryFactory = MemoriaRepositoryFactory.getSoleInstance();
-            System.out.println("[Aplicacao] Repositórios em memória prontos.");
-        } else {
-            System.out.println("[Aplicacao] Já estava configurada. Ignorando nova configuração.");
-        }
-        return this;
-    }
-
-    /**
-     * Define a fábrica de rodadas. Só efetiva a primeira chamada.
-     */
-    public Aplicacao definirRodadaFactory(RodadaFactory rodadaFactory) {
-        assertConfigurada();
-        if (this.rodadaFactory == null && rodadaFactory != null) {
-            System.out.println("[Aplicacao] Definindo RodadaFactory: " + rodadaFactory.getClass().getSimpleName());
-            this.rodadaFactory = rodadaFactory;
-        } else {
-            System.out.println("[Aplicacao] RodadaFactory já definida. Mantendo atual.");
-        }
-        return this;
-    }
-
-    public RepositoryFactory getRepositoryFactory() {
-        assertConfigurada();
-        return repositoryFactory;
-    }
-
-    public RodadaFactory getRodadaFactory() {
-        assertConfigurada();
-        if (rodadaFactory == null) throw new IllegalStateException("RodadaFactory não definida");
-        return rodadaFactory;
-    }
-
-    public TemaRepository getTemaRepository() { return getRepositoryFactory().getTemaRepository(); }
-    public PalavraRepository getPalavraRepository() { return getRepositoryFactory().getPalavraRepository(); }
-    public JogadorRepository getJogadorRepository() { return getRepositoryFactory().getJogadorRepository(); }
-    public RodadaRepository getRodadaRepository() { return getRepositoryFactory().getRodadaRepository(); }
-
-    private void assertConfigurada() {
-        if (!configurada.get()) throw new IllegalStateException("Aplicacao não configurada");
-    }
-
-    /**
-     * Entry-point CLI simples (sem boneco): permite jogar pelo console.
-     */
     public static void main(String[] args) throws Exception {
-        Scanner in = new Scanner(System.in);
-        Aplicacao app = Aplicacao.getSoleInstance().configurarParaMemoria();
-
-        // Fábricas necessárias pelo domínio
+        // fábricas visuais requeridas pelo domínio
         br.edu.iff.bancodepalavras.dominio.palavra.Palavra.setLetraFactory(LetraTextoFactory.getSoleInstance());
         Rodada.setBonecoFactory(NoOpBonecoFactory.getSoleInstance());
 
-        // Fábrica concreta de rodadas (sorteio)
-        RodadaSorteioFactory.createIfAbsent(
-            app.getTemaRepository(),
-            app.getPalavraRepository(),
-            app.getRodadaRepository(),
-            Rodada.getMaxPalavras()
+        // somente repositórios em memória
+        RepositoryFactory repos = MemoriaRepositoryFactory.getSoleInstance();
+        TemaRepository temaRepo = repos.getTemaRepository();
+        PalavraRepository palavraRepo = repos.getPalavraRepository();
+        JogadorRepository jogadorRepo = repos.getJogadorRepository();
+        RodadaRepository rodadaRepo = repos.getRodadaRepository();
+
+        // carga inicial mínima para permitir jogar
+        cargaInicial(temaRepo, palavraRepo);
+
+        // fábrica concreta de rodada (sorteio)
+        RodadaFactory rodadaFactory = RodadaSorteioFactory.createIfAbsent(
+            temaRepo, palavraRepo, rodadaRepo, Rodada.getMaxPalavras()
         );
-        app.definirRodadaFactory(RodadaSorteioFactory.getSoleInstance());
 
-        // Carga mínima de dados
-        try {
-            CargaInicial.executar(app);
-        } catch (RepositoryException e) {
-            System.err.println("[Aplicacao] Aviso: não foi possível carregar dados iniciais: " + e.getMessage());
-        }
+        // jogador padrão (sem prompt de início); usa args[0] se existir
+        String nome = (args != null && args.length > 0 && !args[0].isBlank()) ? args[0].trim() : "Jogador";
+        Jogador jogador = obterOuCriarJogador(jogadorRepo, nome);
 
-        System.out.print("Iniciar a partida? (sim/nao): ");
-        String iniciar = in.nextLine().trim().toLowerCase();
-        if (!"sim".equals(iniciar)) {
-            System.out.println("Encerrando o jogo.");
-            return;
-        }
+        // cria a rodada na largada
+        RodadaAppService app = new RodadaAppService(rodadaFactory, jogadorRepo, rodadaRepo);
+        Rodada rodada = app.novaRodada(jogador);
 
-        System.out.print("Digite o seu nome: ");
-        String nomeJogador = in.nextLine().trim();
+        // UI de console
+        cabecalho("Jogo da Forca - memoria");
+        System.out.println("Tema selecionado: " + rodada.getTema().getNome());
+        System.out.println("Quantidade de palavras: " + rodada.getNumPalavras());
+        System.out.println();
 
-        RodadaAppService rodadas = new RodadaAppService(app);
-        Rodada rodada;
-        try {
-            rodada = rodadas.novaRodada(nomeJogador);
-        } catch (RepositoryException e) {
-            System.err.println("Erro ao criar rodada: " + e.getMessage());
-            return;
-        }
+        try (Scanner in = new Scanner(System.in)) {
+            while (!rodada.encerrou()) {
+                imprimirStatus(rodada);
 
-        System.out.println("Tema: " + rodada.getTema().getNome());
+                System.out.println("[1] Tentar uma letra   [2] Arriscar palavra(s)");
+                System.out.print(">> ");
+                String op = in.nextLine().trim();
 
-        while (!rodada.encerrou()) {
-            System.out.println();
-            System.out.println("Tentativas restantes: " + rodada.getQtdeTentativasRestantes());
-            System.out.print("Tentativas anteriores: ");
-            for (Letra tentativa : rodada.getTentativas()) {
-                tentativa.exibir(null);
-                System.out.print(" | ");
-            }
-            System.out.println();
-
-            System.out.println("\n--- Palavras ---");
-            rodada.exibirPalavras(null);
-            System.out.println();
-
-            System.out.println("(1) Tentar letra");
-            System.out.println("(2) Arriscar palavra(s)");
-            System.out.print("Escolha: ");
-            String opcao = in.nextLine().trim();
-
-            switch (opcao) {
-                case "1": {
-                    System.out.print("Digite a letra: ");
-                    String entrada = in.nextLine().trim();
-                    if (entrada.isEmpty()) {
-                        System.out.println("Nenhuma letra informada.");
-                        break;
+                if ("1".equals(op)) {
+                    System.out.print("Letra: ");
+                    String s = in.nextLine().trim();
+                    if (!s.isEmpty()) {
+                        rodada.tentar(s.charAt(0));
                     }
-                    char c = entrada.charAt(0);
-                    try {
-                        rodada.tentar(c);
-                    } catch (RuntimeException ex) {
-                        System.out.println("Erro: " + ex.getMessage());
-                    }
-                    break;
-                }
-                case "2": {
-                    int n = rodada.getNumPalavras();
-                    String[] palpites = new String[n];
-                    for (int i = 0; i < n; i++) {
-                        System.out.print("Chute a palavra " + (i+1) + ": ");
+                } else if ("2".equals(op)) {
+                    String[] palpites = new String[rodada.getNumPalavras()];
+                    for (int i = 0; i < palpites.length; i++) {
+                        System.out.print("Palpite " + (i + 1) + ": ");
                         palpites[i] = in.nextLine().trim();
                     }
-                    try {
-                        rodada.arriscar(palpites);
-                    } catch (RuntimeException ex) {
-                        System.out.println("Erro: " + ex.getMessage());
-                    }
+                    rodada.arriscar(palpites);
+                } else {
+                    System.out.println("Escolha 1 ou 2.");
+                }
+
+                if (rodada.descobriu()) {
+                    System.out.println();
+                    System.out.println("Acertou, " + jogador.getNome() + "!");
+                    System.out.println("Pontuacao: " + rodada.calcularPontos());
                     break;
                 }
-                default:
-                    System.out.println("Opção inválida.");
-            }
-
-            if (rodada.descobriu()) {
-                System.out.println("\nParabéns, " + rodada.getJogador().getNome() + "!");
-                System.out.println("Pontuação: " + rodada.calcularPontos());
-                break;
             }
         }
 
         if (!rodada.descobriu()) {
-            System.out.println("\nVocê não acertou desta vez, " + rodada.getJogador().getNome() + ".");
+            System.out.println();
+            System.out.println("Nao foi dessa vez, " + jogador.getNome() + ".");
+        }
+        System.out.println();
+        System.out.println("Fim.");
+    }
+
+    // helpers
+
+    /**
+     * Carga inicial simples: cria 1 tema e 2 palavras se o banco em memória estiver vazio.
+     */
+    private static void cargaInicial(TemaRepository temaRepo, PalavraRepository palavraRepo) throws RepositoryException {
+        if (temaRepo.getTodos().length > 0) return;
+
+        Tema animais = Tema.criar(temaRepo.getProximoId(), "Animais");
+        temaRepo.inserir(animais);
+
+        palavraRepo.inserir(Palavra.criar(palavraRepo.getProximoId(), "gato", animais));
+        palavraRepo.inserir(Palavra.criar(palavraRepo.getProximoId(), "cachorro", animais));
+    }
+
+    private static Jogador obterOuCriarJogador(JogadorRepository repo, String nome) throws RepositoryException {
+        Jogador j = repo.getPorNome(nome);
+        if (j != null) return j;
+        j = Jogador.criar(repo.getProximoId(), nome);
+        repo.inserir(j);
+        return j;
+    }
+
+    private static void imprimirStatus(Rodada rodada) {
+        System.out.println();
+        System.out.println("Tentativas restantes: " + rodada.getQtdeTentativasRestantes());
+
+        System.out.print("Letras tentadas: ");
+        Letra[] tentadas = rodada.getTentativas();
+        if (tentadas.length == 0) {
+            System.out.println("(nenhuma)");
+        } else {
+            for (int i = 0; i < tentadas.length; i++) {
+                tentadas[i].exibir(null);
+                if (i < tentadas.length - 1) System.out.print(" ");
+            }
+            System.out.println();
         }
 
-        System.out.println("Obrigado por jogar!");
+        System.out.println();
+        System.out.println("--- PALAVRA(S) ---");
+        rodada.exibirPalavras(null);
+        System.out.println();
+    }
+
+    private static void cabecalho(String titulo) {
+        System.out.println("========================================");
+        System.out.println(titulo);
+        System.out.println("========================================");
     }
 }

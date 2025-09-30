@@ -4,31 +4,42 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import bancodepalavras.dominio.letra.Letra;
-import bancodepalavras.dominio.letra.LetraFactory;
-import bancodepalavras.dominio.tema.Tema;
-import dominio.ObjetoDominioImpl;
+import br.edu.iff.bancodepalavras.dominio.letra.Letra;
+import br.edu.iff.bancodepalavras.dominio.letra.LetraFactory;
+import br.edu.iff.bancodepalavras.dominio.tema.Tema;
+import br.edu.iff.dominio.ObjetoDominioImpl;
 
+/**
+ * Entidade Palavra
+ * Padrões:
+ * - Factory Method: criar()/reconstituir() centralizam a construção.
+ * - Flyweight: LetraFactory fornece instâncias compartilhadas de Letra e da "letra encoberta".
+ * - Value semantics nas letras: equals/hashCode em Letra permitem comparar corretamente sequências.
+ */
 public class Palavra extends ObjetoDominioImpl {
 
     private static LetraFactory letraFactory;
+    // Representação da letra "oculta" (ex.: '*'), fornecida pelo Flyweight
     private Letra letraEncoberta;
     private Letra[] letras;
     private Tema tema;
 
     public static LetraFactory getLetraFactory() {
-        return LetraFactory;
+        return letraFactory;
     }
     public static void setLetraFactory(LetraFactory letraFactory) {
-        LetraFactory = letraFactory;
+        Palavra.letraFactory = letraFactory;
     }
     //Método construtor privado para respeitar princípios do Factory Method e redirecionar a criação do objeto para os métodos Criar() e Reconstituir()
+    // Padrões:
+    // - Factory Method: criação controlada via criar()/reconstituir()
+    // - Flyweight: uso de LetraFactory para reutilizar instâncias de Letra
     private Palavra(long id, String palavra, Tema tema) {
         super(id);
 
         if (letraFactory != null) {
             this.tema = tema;
-            this.letraEncoberta = letraFactory.getLetraFactory();
+            this.letraEncoberta = letraFactory.getLetraEncoberta(); // letra representando posição oculta
 
             letras = new Letra[palavra.length()];
             for (int i = 0; i < palavra.length(); i++) {
