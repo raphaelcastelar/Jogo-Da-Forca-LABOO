@@ -7,6 +7,7 @@ import br.edu.iff.bancodepalavras.dominio.letra.texto.LetraTextoFactory;
 import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
 import br.edu.iff.bancodepalavras.dominio.palavra.PalavraRepository;
 import br.edu.iff.bancodepalavras.dominio.tema.Tema;
+import br.edu.iff.bancodepalavras.dominio.tema.TemaFactoryImpl;
 import br.edu.iff.bancodepalavras.dominio.tema.TemaRepository;
 import br.edu.iff.jogoforca.dominio.boneco.NoOpBonecoFactory;
 import br.edu.iff.jogoforca.dominio.jogador.Jogador;
@@ -116,7 +117,10 @@ public final class Aplicacao {
     private static void cargaInicial(TemaRepository temaRepo, PalavraRepository palavraRepo) throws RepositoryException {
         if (temaRepo.getTodos().length > 0) return;
 
-        Tema animais = Tema.criar(temaRepo.getProximoId(), "Animais");
+        TemaFactoryImpl.createSoleInstance(temaRepo);
+        TemaFactoryImpl tf = TemaFactoryImpl.getSoleInstance();
+
+        Tema animais = tf.getTema("Animais");
         temaRepo.inserir(animais);
 
         palavraRepo.inserir(Palavra.criar(palavraRepo.getProximoId(), "gato", animais));
