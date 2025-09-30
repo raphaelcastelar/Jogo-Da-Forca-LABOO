@@ -83,16 +83,7 @@ public class Item {
     }
 
     public void exibir(Object contexto) {
-        // Implementação assumindo que contexto é algo como PrintStream para exibição simples.
-        Letra[] letras = palavra.getLetras();
-        for (int i = 0; i < posicoesDescobertas.length; i++) {
-            if (posicoesDescobertas[i]) {
-                letras[i].exibir(contexto);
-            } else {
-                // Exibe letra encoberta (usando factory da palavra)
-                palavra.getLetraFactory().getLetraEncoberta().exibir(contexto);
-            }
-        }
+        palavra.exibir(contexto, posicoesDescobertas);
     }
 
     public boolean descobriu() {
