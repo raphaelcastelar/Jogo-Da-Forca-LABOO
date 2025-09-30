@@ -7,6 +7,8 @@ import br.edu.iff.repository.RepositoryException;
 
 /**
  * Stub BDR: implementa a interface e compila; não utilizado em runtime.
+ * Essa classe não possui implementação funcional e lança UnsupportedOperationException
+ * para os métodos de modificação, indicando que o BDR não está implementado.
  */
 public class BDRPalavraRepository implements PalavraRepository {
     private static BDRPalavraRepository soleInstance;
