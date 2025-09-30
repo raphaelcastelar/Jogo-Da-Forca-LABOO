@@ -1,5 +1,36 @@
 package br.edu.iff.bancodepalavras.dominio.tema;
 
-public class Tema {
+import br.edu.iff.dominio.ObjetoDominio;
+import br.edu.iff.dominio.ObjetoDominioImpl;
 
+public class Tema extends ObjetoDominioImpl {
+    
+    private String nome;
+    
+
+    public static Tema criar(long id, String nome) {
+        return new Tema(id, nome);
+    }
+    
+    public static Tema reconstituir(long id, String nome) {
+        return new Tema(id, nome);
+    }
+    
+    private Tema(long id, String nome) {
+        super(id);
+        this.nome = nome;
+    }
+    
+    public long getId() {
+        return super.getId();
+    }
+    
+    public String getNome() {
+        return this.nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+    
 }
