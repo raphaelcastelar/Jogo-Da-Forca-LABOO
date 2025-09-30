@@ -1,16 +1,17 @@
 package br.edu.iff.bancodepalavras.dominio.tema;
 
 import br.edu.iff.dominio.ObjetoDominio;
+import br.edu.iff.dominio.ObjetoDominioImpl;
 
 /**
  * Entidade Tema
  * Padrões: Factory Method (criar/reconstituir) para manter construção controlada.
  */
-public class Tema implements ObjetoDominio {
+public class Tema extends ObjetoDominioImpl {
     
-    private long id;
     private String nome;
     
+
     public static Tema criar(long id, String nome) {
         return new Tema(id, nome);
     }
@@ -20,16 +21,16 @@ public class Tema implements ObjetoDominio {
     }
     
     private Tema(long id, String nome) {
-        this.id = id;
+        super(id);
         this.nome = nome;
     }
     
     public long getId() {
-        return id;
+        return super.getId();
     }
     
     public String getNome() {
-        return nome;
+        return this.nome;
     }
 
     public void setNome(String nome) {
