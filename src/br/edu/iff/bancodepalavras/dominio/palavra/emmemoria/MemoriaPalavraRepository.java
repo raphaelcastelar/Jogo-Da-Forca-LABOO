@@ -1,79 +1,65 @@
 package br.edu.iff.bancodepalavras.dominio.palavra.emmemoria;
 
-public class MemoriaPalavraRepository {
+import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
+import br.edu.iff.bancodepalavras.dominio.palavra.PalavraRepository;
+import br.edu.iff.bancodepalavras.dominio.tema.Tema;
+import br.edu.iff.repository.RepositoryException;
 
-import bancodepalavras.dominio.palavra.Palavra;
-import bancodepalavras.dominio.palavra.PalavraRepository;
-import bancodepalavras.dominio.tema.Tema;
-import repository.BDEmMemoria;
-import repository.RepositoryException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MemoriaPalavraRepository implements PalavraRepository {
     private static MemoriaPalavraRepository soleInstance;
+    private final Map<Long, Palavra> porId = new ConcurrentHashMap<>();
+    private final Map<String, Long> porTexto = new ConcurrentHashMap<>();
+    private final Map<Long, Set<Long>> porTemaId = new ConcurrentHashMap<>();
+    private final AtomicLong seq = new AtomicLong(1);
 
-    public static MemoriaPalavraRepository getSoleInstance(){
-        if(soleInstance==null){
-            soleInstance = new MemoriaPalavraRepository();
-        }
+    private MemoriaPalavraRepository() {}
+    public static MemoriaPalavraRepository getSoleInstance() {
+        if (soleInstance == null) soleInstance = new MemoriaPalavraRepository();
         return soleInstance;
     }
-    public MemoriaPalavraRepository() {
+
+    public long getProximoId() { return seq.getAndIncrement(); }
+
+    public void inserir(Palavra p) throws RepositoryException {
+        if (porId.containsKey(p.getId())) throw new RepositoryException("Palavra já existe");
+        porId.put(p.getId(), p);
+        porTexto.putIfAbsent(p.toString().toLowerCase(), p.getId());
+        porTemaId.computeIfAbsent(p.getTema().getId(), k -> new HashSet<>()).add(p.getId());
     }
 
-    @Override
-    public long getProximoId() {
-        if (BDEmMemoria.BDPalavra.isEmpty()){
-            return 1;
-        }
-
-        return Collections.max(BDEmMemoria.BDPalavra.keySet()) + 1;
+    public void atualizar(Palavra p) throws RepositoryException {
+        if (!porId.containsKey(p.getId())) throw new RepositoryException("Palavra inexistente");
+        porTexto.entrySet().removeIf(e -> e.getValue().equals(p.getId()));
+        porTemaId.values().forEach(s -> s.remove(p.getId()));
+        porId.put(p.getId(), p);
+        porTexto.put(p.toString().toLowerCase(), p.getId());
+        porTemaId.computeIfAbsent(p.getTema().getId(), k -> new HashSet<>()).add(p.getId());
     }
 
-    @Override
-    public Palavra getPorId(long id) {
-        return BDEmMemoria.BDPalavra.get(id);
+    public void remover(Palavra p) throws RepositoryException {
+        if (!porId.containsKey(p.getId())) throw new RepositoryException("Palavra inexistente");
+        porId.remove(p.getId());
+        porTexto.entrySet().removeIf(e -> e.getValue().equals(p.getId()));
+        porTemaId.values().forEach(s -> s.remove(p.getId()));
     }
 
-    @Override
-    public List<Palavra> getPorTema(Tema tema) {
-        return BDEmMemoria.BDPalavra.values().stream().filter(palavra -> palavra.getTema().equals(tema)).collect(Collectors.toList());
+    public Palavra getPorId(long id) { return porId.get(id); }
+
+    public Palavra getPalavra(String texto) {
+        Long id = porTexto.get(texto.toLowerCase());
+        return id == null ? null : porId.get(id);
     }
 
-    @Override
-    public List<Palavra> getTodas() {
-        return new ArrayList<>(BDEmMemoria.BDPalavra.values());
+    public Palavra[] getTodas() { return porId.values().toArray(new Palavra[0]); }
+
+    public Palavra[] getPorTema(Tema tema) {
+        Set<Long> ids = porTemaId.getOrDefault(tema.getId(), Collections.emptySet());
+        List<Palavra> list = new ArrayList<>();
+        for (Long id: ids) list.add(porId.get(id));
+        return list.toArray(new Palavra[0]);
     }
-
-    @Override
-    public Palavra getPalavra(String palavra) {
-        for (Palavra p : BDEmMemoria.BDPalavra.values()) {
-            if (p.toString().equals(palavra)){
-                return p;
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public void inserir(Palavra palavra) throws RepositoryException {
-        BDEmMemoria.BDPalavra.put(palavra.getId(), palavra);
-    }
-
-    @Override
-    public void atualizar(Palavra palavra) throws RepositoryException {
-        BDEmMemoria.BDPalavra.put(palavra.getId(), palavra);
-    }
-
-    @Override
-    public void remover(Palavra palavra) throws RepositoryException {
-        BDEmMemoria.BDPalavra.remove(palavra.getId());
-    }
-}
-
 }
