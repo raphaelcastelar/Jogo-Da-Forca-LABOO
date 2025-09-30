@@ -205,10 +205,10 @@ public class Rodada extends ObjetoDominioImpl {
     }
 
     public void exibirItens(Object contexto) {
-        // Assumindo que exibe palavras, letras erradas e boneco
-        exibirPalavras(contexto);
-        exibirLetrasErradas(contexto);
-        exibirBoneco(contexto);
+        for (Item item : itens) {
+            item.exibir(contexto);
+            System.out.println();
+        }
     }
 
     public void arriscar(String[] palavras) {
